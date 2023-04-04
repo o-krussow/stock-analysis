@@ -114,9 +114,9 @@ if __name__ == "__main__":
         parameter_run_counter = 0
 
         return_list = {}
-        for _max_bspairs in range(1, 100):
-            for _buy_threshold_percent in np.arange(-0.002, -0.001, 0.00001):
-                for _sell_threshold_percent in np.arange(-0.002, -0.001, 0.00001):
+        for _max_bspairs in range(200, 500):
+            for _buy_threshold_percent in np.arange(-0.007, -0.0001, 0.00001):
+                for _sell_threshold_percent in np.arange(-0.007, -0.0001, 0.00001):
                     for _num_stocks_per_buy in range(1, 10):
                         test_return_percentage = run_simulation(initial_funds=100000, max_bspairs=_max_bspairs, buy_threshold_percent=_buy_threshold_percent, sell_threshold_percent=_sell_threshold_percent, num_stocks_per_buy=_num_stocks_per_buy, do_print=False)
                         
