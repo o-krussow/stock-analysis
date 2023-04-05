@@ -99,6 +99,7 @@ int main() {
 
 	float line_float;
 
+	//Reading the input file
 	while (getline(csv_file, line)) {
 		line_float = std::stof(line);	
 		price_history.push_back(line_float);
@@ -109,12 +110,14 @@ int main() {
 	std::vector<std::tuple<float, float, float>> parameters;
 	float current_return;
 
-	//auto t1, t2, t3, t4, t5, t6;
 	float r1, r2, r3, r4, r5, r6;
 
-	for (float buy_threshold_percent = 0.001; buy_threshold_percent < 3; buy_threshold_percent += 0.00006) {
-		for (float sell_threshold_percent = 0.001; sell_threshold_percent < 5; sell_threshold_percent += 0.0006) {
-		
+	int iterations = 0;
+
+	//Yes this is kind of an ugly not amazing way of doing multithreading, I'll probably fix it later
+	for (float buy_threshold_percent = 0.001; buy_threshold_percent < 2; buy_threshold_percent += 0.00006) {
+		for (float sell_threshold_percent = 0.001; sell_threshold_percent < 3; sell_threshold_percent += 0.00006) {
+			//making new threads, each one offset by the + so obviously they're doing different things		
 			auto t1 = std::async(run_simulation, price_history, buy_threshold_percent, sell_threshold_percent);
 			auto t2 = std::async(run_simulation, price_history, buy_threshold_percent+0.00001, sell_threshold_percent+0.00001);
 			auto t3 = std::async(run_simulation, price_history, buy_threshold_percent+0.00002, sell_threshold_percent+0.00002);
@@ -122,6 +125,7 @@ int main() {
 			auto t5 = std::async(run_simulation, price_history, buy_threshold_percent+0.00004, sell_threshold_percent+0.00004);
 			auto t6 = std::async(run_simulation, price_history, buy_threshold_percent+0.00005, sell_threshold_percent+0.00005);
 	
+			//Getting the results from each thread
 			r1 = t1.get();
 			r2 = t2.get();
 			r3 = t3.get();
@@ -129,21 +133,28 @@ int main() {
 			r5 = t5.get();
 			r6 = t6.get();
 
+			//Adding the results from each thread to our parameter vector
 			parameters.push_back({r1, buy_threshold_percent, sell_threshold_percent});
 			parameters.push_back({r2, buy_threshold_percent+0.00001, sell_threshold_percent+0.00001});
 			parameters.push_back({r3, buy_threshold_percent+0.00002, sell_threshold_percent+0.00002});
 			parameters.push_back({r4, buy_threshold_percent+0.00003, sell_threshold_percent+0.00003});
 			parameters.push_back({r5, buy_threshold_percent+0.00004, sell_threshold_percent+0.00004});
 			parameters.push_back({r6, buy_threshold_percent+0.00005, sell_threshold_percent+0.00005});
+
+			iterations++;
+
+			if (iterations % 1000 == 0) { //Printing the current iteration if its a multiple so we aren't bottlenecked by terminal
+				std::cout << "Iteration: " << iterations << std::endl;
+			}
 		}
 	}
 
 	//sorting the parameters
 	std::sort(parameters.begin(), parameters.end());
 
+	//Printing the sorted parameter vector
 	for (int pi = 0; pi < parameters.size(); pi++) {
-		
-		std::cout << "Return: " << std::get<0>(parameters.at(pi)) << " Buy thresh: " << std::get<1>(parameters.at(pi)) << " Sell thresh: " << std::get<2>(parameters.at(pi));
+		std::cout << "Return: " << std::get<0>(parameters.at(pi)) << " Buy thresh: " << std::get<1>(parameters.at(pi)) << " Sell thresh: " << std::get<2>(parameters.at(pi)) << std::endl;
 	}
 
 	//run_simulation(price_history, 0.001736, 0.006944);
