@@ -1,0 +1,14 @@
+keep in mind the scheduler performance
+
+
+write functions to facilitate threading better
+
+
+do we even need baller ass multithreading and stuff? not like percentages are going to be perfect anyways
+
+add more bspairs
+
+
+double check that everything is being calculated correctly, maybe write a function to print out bspairs as the program runs so we can verify things are being removed correctly
+
+
