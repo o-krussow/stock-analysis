@@ -41,7 +41,7 @@ float run_simulation(std::vector<float> prices, float buy_threshold_percent, flo
 		if (verbose)
 			std::cout << " Percent change: " << percent_change << " ";
 
-		if (percent_change < buy_threshold && bspairs.size() < max_bspairs) {
+		if (percent_change <= buy_threshold && bspairs.size() < max_bspairs) {
 			//Then we want to buy
 			buy_price = current_price;
 			sell_price = current_price * (sell_threshold+1);
@@ -64,7 +64,7 @@ float run_simulation(std::vector<float> prices, float buy_threshold_percent, flo
 			sell_price = std::get<1>(bspairs.at(bsp));
 			quantity = std::get<2>(bspairs.at(bsp));
 
-			if (sell_price < current_price) {
+			if (sell_price >= current_price) {
 				//Then we want to sell
 				if (verbose)
 					std::cout << " ->Sell";
@@ -91,7 +91,7 @@ float run_simulation(std::vector<float> prices, float buy_threshold_percent, flo
 		std::cout << "Cash remaining on hand: " << cash << std::endl;
 		std::cout << "Value of stocks: " << stock_money << std::endl; 
 		std::cout << "Combined value: " << cash + stock_money << std::endl;
-		std::cout << "Percent change: " << final_percent_change << std::endl; 
+		std::cout << "Percent change: " << final_percent_change << "%" << std::endl; 
 
 		std::cout << "Buy threshold setting: " << buy_threshold_percent << std::endl;
 		std::cout << "Sell threshold setting: " << sell_threshold_percent << std::endl << std::endl;
@@ -127,21 +127,21 @@ int main(int argc, char *argv[]) {
 		int iterations = 0;
 
 		//Yes this is kind of an ugly not amazing way of doing multithreading, I'll probably fix it later
-		for (float buy_threshold_percent = 0.001; buy_threshold_percent < 2; buy_threshold_percent += 0.0012) {
+		for (float buy_threshold_percent = -0.001; buy_threshold_percent > -2; buy_threshold_percent -= 0.0012) {
 			for (float sell_threshold_percent = 0.001; sell_threshold_percent < 3; sell_threshold_percent += 0.0012) {
 				//making new threads, each one offset by the + so obviously they're doing different things		
 				auto t1 = std::async(run_simulation, price_history, buy_threshold_percent, sell_threshold_percent, false);
-				auto t2 = std::async(run_simulation, price_history, buy_threshold_percent+0.0001, sell_threshold_percent+0.0001, false);
-				auto t3 = std::async(run_simulation, price_history, buy_threshold_percent+0.0002, sell_threshold_percent+0.0002, false);
-				auto t4 = std::async(run_simulation, price_history, buy_threshold_percent+0.0003, sell_threshold_percent+0.0003, false);
-				auto t5 = std::async(run_simulation, price_history, buy_threshold_percent+0.0004, sell_threshold_percent+0.0004, false);
-				auto t6 = std::async(run_simulation, price_history, buy_threshold_percent+0.0005, sell_threshold_percent+0.0005, false);
-				auto t7 = std::async(run_simulation, price_history, buy_threshold_percent+0.0006, sell_threshold_percent+0.0006, false);
-				auto t8 = std::async(run_simulation, price_history, buy_threshold_percent+0.0007, sell_threshold_percent+0.0007, false);
-				auto t9 = std::async(run_simulation, price_history, buy_threshold_percent+0.0008, sell_threshold_percent+0.0008, false);
-				auto t10 = std::async(run_simulation, price_history, buy_threshold_percent+0.0009, sell_threshold_percent+0.0009, false);
-				auto t11 = std::async(run_simulation, price_history, buy_threshold_percent+0.0010, sell_threshold_percent+0.0010, false);
-				auto t12 = std::async(run_simulation, price_history, buy_threshold_percent+0.0011, sell_threshold_percent+0.0011, false);
+				auto t2 = std::async(run_simulation, price_history, buy_threshold_percent-0.0001, sell_threshold_percent+0.0001, false);
+				auto t3 = std::async(run_simulation, price_history, buy_threshold_percent-0.0002, sell_threshold_percent+0.0002, false);
+				auto t4 = std::async(run_simulation, price_history, buy_threshold_percent-0.0003, sell_threshold_percent+0.0003, false);
+				auto t5 = std::async(run_simulation, price_history, buy_threshold_percent-0.0004, sell_threshold_percent+0.0004, false);
+				auto t6 = std::async(run_simulation, price_history, buy_threshold_percent-0.0005, sell_threshold_percent+0.0005, false);
+				auto t7 = std::async(run_simulation, price_history, buy_threshold_percent-0.0006, sell_threshold_percent+0.0006, false);
+				auto t8 = std::async(run_simulation, price_history, buy_threshold_percent-0.0007, sell_threshold_percent+0.0007, false);
+				auto t9 = std::async(run_simulation, price_history, buy_threshold_percent-0.0008, sell_threshold_percent+0.0008, false);
+				auto t10 = std::async(run_simulation, price_history, buy_threshold_percent-0.0009, sell_threshold_percent+0.0009, false);
+				auto t11 = std::async(run_simulation, price_history, buy_threshold_percent-0.0010, sell_threshold_percent+0.0010, false);
+				auto t12 = std::async(run_simulation, price_history, buy_threshold_percent-0.0011, sell_threshold_percent+0.0011, false);
 		
 				//Getting the results from each thread
 				r1 = t1.get();
@@ -160,17 +160,17 @@ int main(int argc, char *argv[]) {
 
 				//Adding the results from each thread to our parameter vector
 				parameters.push_back({r1, buy_threshold_percent, sell_threshold_percent});
-				parameters.push_back({r2, buy_threshold_percent+0.0001, sell_threshold_percent+0.0001});
-				parameters.push_back({r3, buy_threshold_percent+0.0002, sell_threshold_percent+0.0002});
-				parameters.push_back({r4, buy_threshold_percent+0.0003, sell_threshold_percent+0.0003});
-				parameters.push_back({r5, buy_threshold_percent+0.0004, sell_threshold_percent+0.0004});
-				parameters.push_back({r6, buy_threshold_percent+0.0005, sell_threshold_percent+0.0005});
-				parameters.push_back({r7, buy_threshold_percent+0.0006, sell_threshold_percent+0.0006});
-				parameters.push_back({r8, buy_threshold_percent+0.0007, sell_threshold_percent+0.0007});
-				parameters.push_back({r9, buy_threshold_percent+0.0008, sell_threshold_percent+0.0008});
-				parameters.push_back({r10, buy_threshold_percent+0.0009, sell_threshold_percent+0.0009});
-				parameters.push_back({r11, buy_threshold_percent+0.0010, sell_threshold_percent+0.0010});
-				parameters.push_back({r12, buy_threshold_percent+0.0011, sell_threshold_percent+0.0011});
+				parameters.push_back({r2, buy_threshold_percent-0.0001, sell_threshold_percent+0.0001});
+				parameters.push_back({r3, buy_threshold_percent-0.0002, sell_threshold_percent+0.0002});
+				parameters.push_back({r4, buy_threshold_percent-0.0003, sell_threshold_percent+0.0003});
+				parameters.push_back({r5, buy_threshold_percent-0.0004, sell_threshold_percent+0.0004});
+				parameters.push_back({r6, buy_threshold_percent-0.0005, sell_threshold_percent+0.0005});
+				parameters.push_back({r7, buy_threshold_percent-0.0006, sell_threshold_percent+0.0006});
+				parameters.push_back({r8, buy_threshold_percent-0.0007, sell_threshold_percent+0.0007});
+				parameters.push_back({r9, buy_threshold_percent-0.0008, sell_threshold_percent+0.0008});
+				parameters.push_back({r10, buy_threshold_percent-0.0009, sell_threshold_percent+0.0009});
+				parameters.push_back({r11, buy_threshold_percent-0.0010, sell_threshold_percent+0.0010});
+				parameters.push_back({r12, buy_threshold_percent-0.0011, sell_threshold_percent+0.0011});
 
 				iterations++;
 

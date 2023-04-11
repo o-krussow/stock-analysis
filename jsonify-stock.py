@@ -8,7 +8,7 @@ stock_name = sys.argv[1]
 
 stock = yf.Ticker(stock_name)
 
-hist = stock.history(period="3mo", interval="60m")
+hist = stock.history(period="59d", interval="5m")
 
 listized = hist["Close"].values.tolist()
 
